@@ -1,5 +1,5 @@
 import streamlit as st
-from rag_backend import process_uploaded_files, get_answer, get_conversational_chain
+from rag_backend import process_uploaded_files, get_conversational_chain
 from langchain.messages import HumanMessage, AIMessage
 import os
 

@@ -4,8 +4,6 @@ langchain-community
 langchain-chroma
 pypdf
 docx2txt
-unstructured
-pip-tools
 langchain-google-genai
 langchain-core
 langchain-classic

@@ -1,5 +1,5 @@
 import os
-from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader, UnstructuredImageLoader
+from langchain_community.document_loaders import Docx2txtLoader, TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
 from langchain_classic.chains import create_retrieval_chain
@@ -40,9 +40,11 @@ def process_uploaded_files(uploaded_files):
             loader = PyPDFium2Loader(file_path)
         elif uploaded_file.name.endswith(".docx") or uploaded_file.name.endswith(".doc"):
             loader = Docx2txtLoader(file_path)
-        elif uploaded_file.name.endswith((".png", ".jpg", ".jpeg")):
+        elif uploaded_file.name.endswith(".txt"):
+            loader = TextLoader(file_path)
+        #elif uploaded_file.name.endswith((".png", ".jpg", ".jpeg")):
             # Uses Unstructured to extract text/OCR from images
-            loader = UnstructuredImageLoader(file_path)
+            #loader = UnstructuredImageLoader(file_path)
         else:
             continue
             
@@ -99,24 +101,3 @@ def get_conversational_chain(retriever):
     
     # This combines the smart retriever and the answering chain
     return create_retrieval_chain(history_aware_retriever, question_answer_chain)
-
-
-def get_answer(retriever, question):
-    """Queries the retriever and generates an answer using the LLM."""
-    system_prompt = (
-        "You are an assistant for question-answering tasks. "
-        "Use the following pieces of retrieved context to answer "
-        "the question. If you don't know the answer, say that you "
-        "don't know.\n\n"
-        "{context}"
-    )
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", system_prompt),
-        ("human", "{input}"),
-    ])
-    
-    question_answer_chain = create_stuff_documents_chain(model, prompt)
-    rag_chain = create_retrieval_chain(retriever, question_answer_chain)
-    
-    response = rag_chain.invoke({"input": question})
-    return response["answer"]
