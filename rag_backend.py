@@ -1,26 +1,29 @@
 import os
+import streamlit as st
 from langchain_community.document_loaders import Docx2txtLoader, TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
 from langchain_classic.chains import create_retrieval_chain
 from langchain_classic.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_google_genai import ChatGoogleGenerativeAI
+#from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
+from langchain_openai import ChatOpenAI
 from langchain_classic.chains import create_history_aware_retriever
 from langchain_community.document_loaders import PyPDFium2Loader
 from dotenv import load_dotenv
+from langchain_cohere import CohereEmbeddings
 
 load_dotenv()  
 
-embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-large-en-v1.5")
+embeddings = CohereEmbeddings(
+    cohere_api_key=st.secrets["COHERE_API_KEY"],
+    model="embed-english-v3.0"  # or "embed-multilingual-v3.0" if document is not in English
+)
 
-model = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash",
-    temperature=0,  
-    max_tokens=None,
-    timeout=None,
-    max_retries=2,
+model = ChatOpenAI(
+    openai_api_base="https://api.groq.com/openai/v1",
+    openai_api_key=st.secrets["GROQ_API_KEY"], # Get a free key from console.groq.com
+    model_name="llama-3.1-8b-instant"
 )
 
 def process_uploaded_files(uploaded_files):
@@ -58,7 +61,11 @@ def process_uploaded_files(uploaded_files):
     chunks = text_splitter.split_documents(all_docs)
     
     # Create an in-memory vector store
-    vector_store = Chroma.from_documents(chunks, embeddings)
+    vector_store = Chroma.from_documents(
+        documents=chunks, 
+        embedding=embeddings, 
+        persist_directory="./chroma_db"
+    )
     return vector_store.as_retriever(search_kwargs={"k": 4})
 
 def get_conversational_chain(retriever):

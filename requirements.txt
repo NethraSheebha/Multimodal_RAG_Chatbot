@@ -7,7 +7,8 @@ docx2txt
 langchain-google-genai
 langchain-core
 langchain-classic
-sentence-transformers
 python-dotenv
-torch
 pypdfium2
+protobuf==3.20.3
+langchain-openai
+langchain-cohere

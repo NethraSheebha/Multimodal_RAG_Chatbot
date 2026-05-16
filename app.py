@@ -1,7 +1,8 @@
+import os
+os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
 import streamlit as st
 from rag_backend import process_uploaded_files, get_conversational_chain
-from langchain.messages import HumanMessage, AIMessage
-import os
+from langchain_core.messages import HumanMessage, AIMessage
 
 st.set_page_config(page_title="Multimodal RAG", layout="wide")
 st.title("📂 Multimodal RAG Assistant")
