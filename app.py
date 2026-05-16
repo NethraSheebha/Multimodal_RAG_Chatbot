@@ -1,19 +1,17 @@
 import streamlit as st
 from rag_backend import process_uploaded_files, get_answer, get_conversational_chain
 from langchain.messages import HumanMessage, AIMessage
+import os
 
 st.set_page_config(page_title="Multimodal RAG", layout="wide")
 st.title("📂 Multimodal RAG Assistant")
 
 # Sidebar for configuration and file uploads
 with st.sidebar:
-    st.header("1. Setup")
-    api_key = st.text_input("Enter Google API Key", type="password")
-    if api_key:
-        import os
-        os.environ["GOOGLE_API_KEY"] = api_key
+    if "GOOGLE_API_KEY" in st.secrets:
+        os.environ["GOOGLE_API_KEY"] = st.secrets["GOOGLE_API_KEY"]
 
-    st.header("2. Upload Documents")
+    st.header("Upload Documents")
     uploaded_files = st.file_uploader(
         "Upload PDFs, Word docs, or Images", 
         type=["pdf", "docx", "png", "jpg", "jpeg"], 
@@ -30,15 +28,12 @@ if "messages" not in st.session_state:
 
 # Process files when button is clicked
 if process_btn and uploaded_files:
-    if not api_key:
-        st.error("Please enter your Google API Key first!")
-    else:
-        with st.spinner("Processing and indexing documents..."):
-            try:
-                st.session_state.retriever = process_uploaded_files(uploaded_files)
-                st.success("Documents indexed successfully! Ask away.")
-            except Exception as e:
-                st.error(f"Error processing files: {e}")
+    with st.spinner("Processing and indexing documents..."):
+        try:
+            st.session_state.retriever = process_uploaded_files(uploaded_files)
+            st.success("Documents indexed successfully! Ask away.")
+        except Exception as e:
+            st.error(f"Error processing files: {e}")
 
 # Main Chat Interface
 st.subheader("Chat with your Docs")
