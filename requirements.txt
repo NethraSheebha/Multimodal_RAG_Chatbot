@@ -1,0 +1,15 @@
+streamlit
+langchain
+langchain-community
+langchain-chroma
+pypdf
+docx2txt
+unstructured
+pip-tools
+langchain-google-genai
+langchain-core
+langchain-classic
+sentence-transformers
+python-dotenv
+torch
+pypdfium2
